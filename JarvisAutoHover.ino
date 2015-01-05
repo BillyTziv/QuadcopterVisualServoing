@@ -347,8 +347,8 @@ void loop() {
 	stabilize(distance1, distance2, distance3, distance4);
 	
 	printStatus();
-	
-        //guard();
+	//...
+     //guard();
 	//Delay 50ms before next reading.
 	delay(50);
 }

@@ -333,7 +333,7 @@ void virtualEngine() {
       RBMV = RBMV+1;
       LBMV = LBMV+1;
     }
-  delay(500);
+  delay(20);
 }
 
 void loop() {
