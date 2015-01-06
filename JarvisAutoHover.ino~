@@ -352,11 +352,6 @@ int fixError(int d1) {
 	
 }
 
-/*
- * This function calculates the four distances and filter the results so the 
- * value will be from 3 to 200 cm.
- *
-*/
 void calculateDistance() {
 	distance1 = calculateDistance(trigPin1, echoPin1);
 	distance1 = constrain(distance1, 3, 200);
@@ -372,18 +367,17 @@ void calculateDistance() {
 }
 
 void loop() {
-	// Calculates the 4 distance from HC-SR04 sensors
-	calculateDistance();	
 	
-	// Stabilizes the quad according to the distance
-	stabilize(distance1, distance2, distance3, distance4);			
+	
+	stabilize();
 	
 	//engine();
      virtualEngine();
+	//stabilize(distance1, distance2, distance3, distance4);
 	
 	printStatus();
-     
-     //Delay 50ms before next reading.
+     //guard();
+	//Delay 50ms before next reading.
 	delay(50);
 }
 

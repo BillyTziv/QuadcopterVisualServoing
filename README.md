@@ -1,9 +1,17 @@
-This project is about building an autonomous quadcopter from scratch. I have worked almost 4 months trying to bypass some parts like the flight controller but I came up with many issues that makes it quite difficult to achieve.
+# Jarvis - Autonomous quadcopter controller v1.0 #
 
-So here you will find anything you need to build your own quadcopter. Hardware and software necessary to make a simple drone.
+# Overview
+Jarvis project is about controlling a quadcopter using Arduino boards. It provides autonomours functionallity on a DIY quadcopter.
 
-Let me inform you that this is my BSe paper at University of Ioannina, Department of Computer Science and Engineering and my supervisor is Kostantinos Vlaxos.
+This project has been started as my graduation paper at University of Ioannina, Department of Computer Science and Engineering. So hopefully at the end of 2015 it should be completed.
 
-contact me for anything you might want at vtzivaras(at)gmail.com
+# Status
+Currently I am trying to make the quadcopter hover from ther ground at ~1m using ultrasonic sensors.
+
+# Bugs
+
+
+# Contact
+You can contact me at vtzivaras@gmail.com for any information. I ll be happy to have a conversation with you.
 
 Enjoy!
