@@ -21,12 +21,12 @@
 
 /***************************************************************************
 * ULTRASONIC DISTANCE SENSOR VARIALBES ARE DEFINED HERE
-*/**************************************************************************
-#define ECHO1	8 			// HC-SR04-1 Echo Pin attached on pin 8
-#define TRIG1	9			// HC-SR04-1 Trig Pin attached on pin 9
+***************************************************************************/
+#define ECHO1   8 			// HC-SR04-1 Echo Pin attached on pin 8
+#define TRIG1   9			// HC-SR04-1 Trig Pin attached on pin 9
 
-#define ECHO2	6 			// HC-SR04-2 Echo Pin attached on pin 6
-#define TRIG2	7  			// HC-SR04-2 Trig Pin attached on pin 7
+#define ECHO2   6 			// HC-SR04-2 Echo Pin attached on pin 6
+#define TRIG2   7  			// HC-SR04-2 Trig Pin attached on pin 7
 
 #define ECHO3	4 			// HC-SR04-3 Echo Pin attached on pin 4
 #define TRIG3	5 			// HC-SR04-3 Trig Pin attached on pin 5
@@ -36,19 +36,19 @@
 
 /***************************************************************************
 * MOTOR VARIALBES ARE DEFINED HERE
-*/**************************************************************************
+***************************************************************************/
 #define MOTOR1	10			// M1 attached on pin 10
 #define MOTOR2	11			// M2 attached on pin 11
 #define MOTOR3	12			// M3 attached on pin 12
 #define MOTOR4	13			// M4 attached on pin 13
 
-#define ARMV 	20				// Value that arms motors (<60)
+#define ARMV 	20			// Value that arms motors (<60)
 #define MIN_MV 	60			// Minimum motor value after the ARM mode
 #define MAX_MV 	80			// Maximum motor value after the ARM mode
 
 /***************************************************************************
 * GLOBAL VARIALBES
-*/**************************************************************************
+***************************************************************************/
 int DSMaxRange = 200; 			// Maximum range needed
 int DSMinRange = 3;			// Minimum range needed
 
@@ -79,7 +79,7 @@ int LBMV = MIN_MV;			// Value of the left back motor [M4]
 
 /***************************************************************************
 * FUNCTIONS
-*/**************************************************************************
+***************************************************************************/
 
 /*
 * Prints the project Logo name
@@ -133,9 +133,8 @@ void disarmMotors(void) {
 	M4.write(ARMV);
 	
 	delay(1000);
-	Serial.println("Motors have been disarmed...\");
+	Serial.println("Motors have been disarmed...\n");
 }
-
 void printHeaders() {
 	Serial.print("HC-1\t");
 	Serial.print("HC-2\t");
@@ -150,39 +149,32 @@ void printHeaders() {
 	
 	Serial.println();  
 }
-
 void setup() {
 	Serial.begin (9600);
-
  	printLogo();
-
-	pinMode(trigPin1, OUTPUT);
-	pinMode(echoPin1, INPUT);
+	pinMode(TRIG1, OUTPUT);
+	pinMode(ECHO1, INPUT);
  
-	pinMode(trigPin2, OUTPUT);
-	pinMode(echoPin2, INPUT);
+	pinMode(TRIG2, OUTPUT);
+	pinMode(ECHO2, INPUT);
  
-	pinMode(trigPin3, OUTPUT);
-	pinMode(echoPin3, INPUT);
+	pinMode(TRIG3, OUTPUT);
+	pinMode(ECHO3, INPUT);
  
-	pinMode(trigPin4, OUTPUT);
-	pinMode(echoPin4, INPUT);
-
+	pinMode(TRIG4, OUTPUT);
+	pinMode(ECHO4, INPUT);
 	attachMotors();
    	armMotors();
      
 	printHeaders();
 }
-
 //Calculate the distance (in cm) based on the speed of sound.
 int calculateDistance(int trig, int echo) {
 	long dur, dist;
 		digitalWrite(trig, LOW); 
 		delayMicroseconds(2); 
-
 		digitalWrite(trig, HIGH);
 		delayMicroseconds(10); 
-
 		digitalWrite(trig, LOW);
 		dur = pulseIn(echo, HIGH);
 		
@@ -190,15 +182,14 @@ int calculateDistance(int trig, int echo) {
 	
 	return dist;
 }
-
 void printStatus() {
-	Serial.print(distance1);
+	Serial.print(DS1Val);
 	Serial.print("\t");
-	Serial.print(distance2);
+	Serial.print(DS2Val);
 	Serial.print("\t");
-	Serial.print(distance3);
+	Serial.print(DS3Val);
 	Serial.print("\t");
-	Serial.print(distance4);
+	Serial.print(DS4Val);
 	
 	Serial.print("\t");
 	Serial.print(LFMV);
@@ -211,10 +202,8 @@ void printStatus() {
 	Serial.print("\t");
 	Serial.print(stabilizationPoint);
 	
-
 	Serial.println();
 }
-
 /*
 * check if the sonar sensor is giving values diff of -1.
 * If so, low all MV (motor value) in a loop till the 
@@ -223,7 +212,6 @@ void printStatus() {
 void autoLanding() {
 	
 }
-
 /*
  * Finds the center point (average value) and stabilizes the quadcopter
  * writting more or less throttle to motors. The sensors are 4 points into
@@ -237,7 +225,7 @@ void stabilize(int point1, int point2, int point3, int point4) {
 	int delayTime = 20;
 	
 		stabilizationPoint = (point1+point2+point3+point4)/4;
-		if( stabilizationPoint >= distance1) {
+		if( stabilizationPoint >= DS1Val) {
 			// Increase the throttle
 			LFMV = LFMV+step;
 			delay(delayTime);
@@ -246,7 +234,7 @@ void stabilize(int point1, int point2, int point3, int point4) {
 			delay(delayTime);
 		}
 		
-		if( stabilizationPoint >= distance2) {
+		if( stabilizationPoint >= DS2Val) {
 			// Increase the throttle
 			RFMV = RFMV+step;
 			delay(delayTime);
@@ -255,7 +243,7 @@ void stabilize(int point1, int point2, int point3, int point4) {
 			delay(delayTime);
 		}
 		
-		if( stabilizationPoint >= distance3) {
+		if( stabilizationPoint >= DS3Val) {
 			// Increase the throttle
 			LBMV = LBMV+step;
 			delay(delayTime);
@@ -264,7 +252,7 @@ void stabilize(int point1, int point2, int point3, int point4) {
 			delay(delayTime);
 		}
 		
-		if( stabilizationPoint >= distance4) {
+		if( stabilizationPoint >= DS4Val) {
 			// Increase the throttle
 			RBMV = RBMV+step;
 			delay(50);
@@ -273,7 +261,6 @@ void stabilize(int point1, int point2, int point3, int point4) {
 			delay(50);
 		}
 }
-
 void engine() {
     if(stabilizationPoint < 30) {
       M1.write(LFMV+1);
@@ -287,7 +274,6 @@ void engine() {
       M4.write(LBMV-1);
     }
 }
-
 /*
  * Virtual engine monitors the engines and it does not use them at all.
  * Debugging purpose!
@@ -306,12 +292,11 @@ void virtualEngine() {
     }
   delay(20);
 }
-
 /*
 * If the buffer has less than 5 elements just insert the new element
 * and return the new element even if there is an error
 */
-
+/*
 int fixError(int d1) {
 	if(numOfElem >= 5) {
 		for(int i=0; i<4 i++) {
@@ -335,10 +320,10 @@ int fixError(int d1) {
 		}
 	}
 	
-	/*
-	 * Find the index with the maximum error possibility. this value obviously
-	 * is a noise at the average.
-	*/
+	
+	  Find the index with the maximum error possibility. this value obviously
+	 is a noise at the average.
+	
 	maxErrorPosIndex = 0;
 	for(int i=0; i<4; i++) {
 		if(errorPos[i]>errorPos[i+1]) {
@@ -346,8 +331,7 @@ int fixError(int d1) {
 		}
 	}
 	
-}
-
+}*/
 /****************************************
 	Quadcopter moves
 ****************************************/
@@ -355,55 +339,80 @@ void moveFront() {
 	// ...
 	
 }
-
 void moveLeft() {
 	// ...
 }
-
 void moveRight() {
 	// ...
 }
-
 void moveBack() {
 	// ...
 }
-
 void turnCW() {
 	// ...
 }
-
 void turnCCW() {
 	// ...
 }
-
 /*
 * This function calculates the four distances and filter the results so the 
 * value will be from 3 to 200 cm.
 */
 void calculateDistance() {
-	distance1 = calculateDistance(trigPin1, echoPin1);
-	distance1 = constrain(distance1, 3, 200);
+	DS1Dur = calculateDistance(TRIG1, ECHO1);
+	DS1Dur = constrain(DS1Dur, 3, 200);
 
-	distance2 = calculateDistance(trigPin2, echoPin2);	
-	distance2 = constrain(distance2, 3, 200);
+	DS2Dur = calculateDistance(TRIG2, ECHO2);	
+	DS2Dur = constrain(DS2Dur, 3, 200);
 		
-	distance3 = calculateDistance(trigPin3, echoPin3);
-	distance3 = constrain(distance3, 3, 200);
+	DS3Dur = calculateDistance(TRIG3, ECHO3);
+	DS3Dur = constrain(DS3Dur, 3, 200);
 		
-	distance4 = calculateDistance(trigPin4, echoPin4);
-	distance4 = constrain(distance4, 3, 200);
+	DS4Dur = calculateDistance(TRIG4, ECHO4);
+	DS4Dur = constrain(DS4Dur, 3, 200);
 }
 
+void steadySpeed(int speedx) {
+  
+      M1.write(speedx);
+      M2.write(speedx);
+      M3.write(speedx);
+      M4.write(speedx);
+}
+
+void controlEngine(int incomingValue) {
+      if( incomingValue >) { 
+        LFMV = incomingValue;
+        RFMV = incomingValue;
+        RBMV = incomingValue;
+        LBMV = incomingValue;
+      }
+}
+
+
 void loop() {
-	// Calculates the 4 distance from HC-SR04 sensors
+        char buffer[] = {' ',' ',' '};   // Receive up to 3 bytes
+        //while (!Serial.available());                     // Wait for characters
+        Serial.readBytesUntil('n', buffer, 3);
+        if() {
+          LFMV = atoi(buffer);
+          RFMV = atoi(buffer);
+          RBMV = atoi(buffer);
+          LBMV = atoi(buffer);
+        }
+        
+        //Serial.println(incomingValue);
+        controlEngine(incomingValue);
+        
+  	// Calculates the 4 distance from HC-SR04 sensors
 	calculateDistance();	
 		
 	// Stabilizes the quad according to the distance
-	stabilize(distance1, distance2, distance3, distance4);			
+	stabilize(DS1Dur, DS2Dur, DS3Dur, DS4Dur);			
 		
-	//engine();
-	     virtualEngine();
-		
+	engine();
+	//virtualEngine();
+        //steadySpeed(95);
 	printStatus();
      
 	//Delay 50ms before next reading.
