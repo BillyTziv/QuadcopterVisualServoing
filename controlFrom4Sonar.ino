@@ -5,7 +5,7 @@
 * After that it fixes the error (if exists) and returns an average value.
 *
 * The quadcopter slope is been calculated by a mathematical model according
-* to the four sensor values.
+* to the four sensor values. Hopefully it will hover over the ground.
 *
 * Developed by Tzivaras Vasilis (vtzivaras@gmail.com)
 *
