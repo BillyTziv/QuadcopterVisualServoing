@@ -20,6 +20,7 @@ unsigned long thrDuration;
 unsigned long ailDuration;
 unsigned long eleDuration;
 unsigned long rudDuration;
+unsigned long switchDuration;
 
 const byte thrInPin = THROTTLE_PIN;
 const byte thrOutPin = 6;
@@ -33,6 +34,12 @@ const byte eleOutPin = 6;
 const byte rudInPin = RUDDER_PIN;
 const byte rudOutPin = 6;
 
+const byte switchInPin = 8;
+const byte switchOutPin = 2;
+
+//int autolandPin = 8;
+//int val = 0;
+
 void setup() {
 	Serial.begin(9600);
 
@@ -40,6 +47,8 @@ void setup() {
         pinMode(ailInPin, INPUT);
         pinMode(eleInPin, INPUT);
         pinMode(rudInPin, INPUT);
+        pinMode(switchInPin, INPUT);
+        
         
         pinMode(thrOutPin, OUTPUT);
         pinMode(ailOutPin, OUTPUT);
@@ -68,11 +77,28 @@ void printStatus() {
   Serial.print("\tRudder: \t");
   Serial.print(rudDuration);
   
+  printSwitchState();
+  
   Serial.print("\n");    
 }
 
+void printSwitchState() {
+  switchDuration = pulseIn(switchInPin, HIGH);
+  Serial.print("\tSwitch: \t");
+  
+  if( switchDuration < 2000 ) {
+    Serial.print("ON");
+    // code when switch is activated (top)
+  }else {
+    Serial.print("OFF");
+    // code when switch is deactivated (bot)
+  }
+  //Serial.print(switchDuration);
+}
 
-void loop() {
+/*
+ * Main function
+*/void loop() {
   printStatus();
 }
 
