@@ -1,0 +1,54 @@
+%
+% This file is a Quadcopter Simulation for MATLAB
+%
+
+% Variables for the quadcopter construction and the enviroment
+
+% Mass of the quadcopter (kg)
+mass = 1.4
+
+% Gravitational Constant (m/s^2)
+gravity = 9.81
+
+% Vaiables aout the simulation
+
+% Weight vector according to x, y, z axis
+% Notice that z axis and gravity have opposite directions thus we need a minus	
+weight = [0, 0, -mass*gravity]'
+
+% Acceleration (m/s^2)
+acceleration = 0;
+
+% Velocity (ms/s)
+velocity = 0;
+
+%Position of the quad in x, y, z axis (m)
+position = [0, 0, 0];
+
+% Simulation start and stop time. Will run for `end_time` seconds and
+% output the results every dt seconds.
+start_time = 0;
+end_time = 10;
+dt = 0.005;
+
+% Vector with the points of interest
+times = start_time:dt:end_time;
+
+% Total number of points in the simulation
+N = numel(times);
+
+% Step though the simulatio, updating the state
+for t = times
+    omega = thetador2omega(thetadot, theta);
+
+    %Compute linear and angular accelerations
+    a = acceleration(i, theta, xdot, m, g, k, kd);
+    omegadot  angular_acceleration(i, omega, I, L, b, k);
+
+    omega omega + dt * omegadot;
+    thetadot = omega2thetadot(omega, theta);
+    theta = theta + dt * thetadot;
+    xdot = xdot + dt * a;
+    x = x + dt *xdot;
+end
+
