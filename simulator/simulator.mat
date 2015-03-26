@@ -25,6 +25,15 @@ velocity = 0;
 %Position of the quad in x, y, z axis (m)
 position = [0, 0, 0];
 
+% phi psi theta euler angles
+% Notice that at first the three angles are zero caz you have parallel CS
+phi = 0;
+psi = 0;
+theta = 0;
+
+% Rotation matrix from CS1 to CS0
+R = [cos(phi)*cos(psi)-cos(theta)*sin(phi)*sin(psi), cos(theta)*cos(psi)*sin(phi)+cos(phi)*sin(psi), sin(phi)*sin(theta):-cos(psi)*sin(phi)-cos(phi)*cos(theta)*sin(psi), cos(phi)*cos(theta)*cos(psi)-sin(phi)*sin(psi), cos(phi)*sin(theta):sin(theta)*sin(psi), -cos(psi)*sin(theta), cos(theta)];
+
 % Simulation start and stop time. Will run for `end_time` seconds and
 % output the results every dt seconds.
 start_time = 0;
@@ -39,16 +48,7 @@ N = numel(times);
 
 % Step though the simulatio, updating the state
 for t = times
-    omega = thetador2omega(thetadot, theta);
-
     %Compute linear and angular accelerations
-    a = acceleration(i, theta, xdot, m, g, k, kd);
-    omegadot  angular_acceleration(i, omega, I, L, b, k);
-
-    omega omega + dt * omegadot;
-    thetadot = omega2thetadot(omega, theta);
-    theta = theta + dt * thetadot;
-    xdot = xdot + dt * a;
-    x = x + dt *xdot;
+    acceleration = compute_acceleration(t, theta, xdot, m, g, k, kd);
 end
 
