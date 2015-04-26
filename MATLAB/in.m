@@ -1,4 +1,4 @@
-function in = inputsa()
+function in = in()
     in = zeros(4, 1);
     in(:) = 700;
     in(1) = in(1) + 150;
