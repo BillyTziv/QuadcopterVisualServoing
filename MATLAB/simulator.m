@@ -1,7 +1,7 @@
 % Quadcopter Simulator
 
 % Physical constants.
-mass = 1.4;
+mass = 0.4;
 gravity = 9.81;
 length = 0.25;
 
@@ -27,7 +27,7 @@ theta = 0;
 
 start_time = 0;
 end_time = 10;
-dt = 0.5;
+dt = 0.005;
 
 times = start_time:dt:end_time;
 N = numel(times);
@@ -43,14 +43,15 @@ counter = 1;
 for t = times
     inp(:, counter) = in();
     % Calculate the acceleration vector
-    a(:, counter) = acceleration(phi, psi, theta, k, mass, weight, inp(counter));
+    %a(:, counter) = acceleration(phi, psi, theta, k, mass, weight, inp(counter))
+    a = acceleration(phi, psi, theta, k, mass, weight, inp(counter));
     
     % Calculate the velocity vector
-    v(:, counter) =  v(:, counter) + dt * v(:, counter);
+    v(:, counter) =  v(:, counter) + dt * a;
     
     
     % Calculate the position vector
-    x(:, counter) =  x(:, counter) + dt * x(:, counter);
+    x(:, counter) =  x(:, counter) + dt * v(:, counter);
     
     
     counter = counter+1;
