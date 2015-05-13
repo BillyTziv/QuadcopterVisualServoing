@@ -1,83 +1,60 @@
 % Quadcopter Simulator
 
-% Physical constants.
-mass = 0.4;
-gravity = 9.81;
-length = 0.25;
+% Clearing previous simulation variables
+clear all;
+clc;
 
-k = 3e-6;
-b = 1e-7;
-I = diag([5e-3, 5e-3, 10e-3]);
-kd = 0.25;
+% Enviromental and quad's constants 
+g = 9.81;                       % gravity acceleration
+m = 0.5;                        % mass in kg
+L = 0.25;                       % length of the rods
+k = 3e-6;                       % thrust coefficient
+b = 1e-7;                       % torque due to drag coefficient
+I = diag([5e-3, 5e-3, 10e-3]);  % moment of inertia
+kd = 0.25;                      % drag coefficient
 
-weight = [0; 0; -gravity*mass];
-omega = [20;20;20;20];
-
-
-ct = 7.3;
-cq = 9.1;
-dct = 5;
-
-gamma = [ct ct ct ct;0 dct 0 -dct;-dct 0 dct 0;-cq cq -cq cq];
-
-% phi psi theta angle
 phi = 0;
 psi = 0;
 theta = 0;
 
-start_time = 0;
-end_time = 10;
-dt = 0.005;
+weight = [0; 0; -g*m];
 
-times = start_time:dt:end_time;
-N = numel(times);
+% Simulation analysis
+t_start = 0;        % Start time
+t_end = 15;         % End time
+dt = 0.001;         % Steps
 
-% 3xN vectors
-a = zeros(3, N);
-v = zeros(3, N);
-x = zeros(3, N);
+t_sim = t_start:dt:t_end;
+N = numel(t_sim);
 
-inp = zeros(4, N);
+% Output values, recorded as the simulation runs
+x = zeros(3,N);     % mass position
+v = zeros(3,N);     % mass velocity
+a = zeros(3,N);     % mass acceleration
 
-counter = 1;
-for t = times
-    inp(:, counter) = in();
-    % Calculate the acceleration vector
-    %a(:, counter) = acceleration(phi, psi, theta, k, mass, weight, inp(counter))
-    a = acceleration(phi, psi, theta, k, mass, weight, inp(counter));
+omega = zeros(4, N);
+
+% SIMULATION loop
+index = 1;
+for t = t_sim
+    omega(:, index) = in();
     
-    % Calculate the velocity vector
-    v(:, counter) =  v(:, counter) + dt * a;
+    a(:, index) = acceleration(phi, psi, theta, k, m, weight, omega(index));
+    v(:, index) = v(:, index) + dt * a(:, index);
+    x(:, index) = x(:, index) + dt * v(:, index);
     
-    
-    % Calculate the position vector
-    x(:, counter) =  x(:, counter) + dt * v(:, counter);
-    
-    
-    counter = counter+1;
+    index = index + 1;
 end
 
-subplot(3,1,1);plot(times, a(3, :), 'r', 'LineWidth', 2);grid;ylabel('Acc. in [m/s^2]');
-subplot(3,1,2);plot(times, v(3, :), 'b', 'LineWidth', 2);grid;ylabel('Vel. in [m/s]');
-subplot(3,1,3);plot(times, x(3, :), 'g', 'LineWidth', 2);grid;xlabel('Time in [s]');ylabel('Pos. in [m]');
+% 3D Graph
+plot3(x(1, :), x(2, :), x(3, :), 'LineWidth', 5)
+xlabel('x axis');
+ylabel('y axis');
+zlabel('z axis');
+grid on;
+title('Simulating the position of a quadcopter');
 
-%figure; plot(times, a(3, :), 'r', 'LineWidth', 2);
-%figure; plot(times, v(3, :), 'b', 'LineWidth', 2)
-%figure; plot(times, x(3, :), 'g', 'LineWidth', 2)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% 2D plots (position, velocity, acceleration)
+%subplot(3,1,1);plot(t_sim,a_out);grid;ylabel('Acc. in [m/s^2]');
+%subplot(3,1,2);plot(t_sim,v_out);grid;ylabel('Vel. in [m/s]');
+%subplot(3,1,3);plot(t_sim,x_out);grid;xlabel('Time in [s]');ylabel('Pos. in [m]');
