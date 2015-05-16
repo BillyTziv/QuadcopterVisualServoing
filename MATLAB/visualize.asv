@@ -60,15 +60,15 @@ function visualize(xin, yin, zin)
     frrz(:) = zin;
     
     % Back right rod
-    brrx = xin : .1 : xin+2.5;
+    brrx = xin-2.5 : .1 : xin;
     brry = fliplr(yin-2.5 : .1 : yin);
     brrz = zeros(1, numel(brrx));
     brrz(:) = zin;
     
     % Back left rod
-    blrx = xin-2.5 : .1 : xin;
+    blrx = xin : .1 : xin+2.5;
     blry = fliplr(yin : .1 : yin+2.5);
-    blrz = zeros(1, numel(brrx));
+    blrz = zeros(1, numel(blrx));
     blrz(:) = zin;
     
     axis([0 50 0 50 0 30]);
@@ -77,7 +77,7 @@ function visualize(xin, yin, zin)
     zlabel('Z AXIS');
     grid on;
     colormap(bone);
-    title('Simulating the position of a quadcopter [RedR: Front View]');
+    title('Simulating the position of a quadcopter');
     
-    plot3(flrx, flry, flrz, 'b', frrx, frry, frrz, 'r', brrx, brry, brrz, 'b', blrx, blry, blrz, 'r', 'LineWidth', 5)
+    plot3(flrx, flry, flrz, 'g', frrx, frry, frrz, 'y', brrx, brry, brrz, 'r', blrx, blry, blrz, 'b', 'LineWidth', )
 end

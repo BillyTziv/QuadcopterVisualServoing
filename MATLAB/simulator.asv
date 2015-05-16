@@ -78,13 +78,12 @@ end
 % grid on;
 % title('Simulating the position of a quadcopter');
 index = 1;
-figure;
+
 for t = t_sim
     visualize(x_out(1, index), x_out(2, index), x_out(3, index));
-    drawnow;
     %mesh(X+x_out(1, index),Y+x_out(2, index),Z+x_out(3, index));
     %axis([-15 15 -15 15 -50 50]);
     pause(0.01);
     
-    index = index + 40;
+    index = index + 20;
 end
