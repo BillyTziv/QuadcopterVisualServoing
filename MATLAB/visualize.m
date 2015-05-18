@@ -4,25 +4,28 @@
 % phi, psi, theta.
 function visualize(xin, yin, zin)
     % Motor 1 to 4 coordinates at x y z axis
-    M1 = zeros(1, 3);
-    M2 = zeros(1, 3);
-    M3 = zeros(1, 3);
-    M4 = zeros(1, 3);
+    %M1 = zeros(1, 3);
+    %M2 = zeros(1, 3);
+    %M3 = zeros(1, 3);
+    %M4 = zeros(1, 3);
     
     % Sphere Radius - details
-    sphere_radius = 50;
+    %sphere_radius = 50;
     
     % Create a sphere for the motor 1
-    [X1, Y1, Z1] = sphere(sphere_radius);
+    [X1, Y1, Z1] = sphere;
+    X1 = 0.5*X1;
+    Y1 = 0.5*Y1;
+    Z1 = 0.5*Z1;
 
     % Create a sphere for the motor 2
-    [X2, Y2, Z2] = sphere(sphere_radius);
+    %[X2, Y2, Z2] = sphere(sphere_radius);
     
     % Create a sphere for the motor 3
-    [X3, Y3, Z3] = sphere(sphere_radius);
+    %[X3, Y3, Z3] = sphere(sphere_radius);
     
     % Create a sphere for the motor 4
-    [X4, Y4, Z4] = sphere(sphere_radius);
+    %[X4, Y4, Z4] = sphere(sphere_radius);
 
     
     % Coordinates of the four motors
@@ -44,7 +47,7 @@ function visualize(xin, yin, zin)
     hold on;
     
     % Mesh for teh motor 1
-    mesh(X4+M4(1), Y4+M4(2), Z4+M4(3));
+    mesh(X1+M4(1), Y1+M4(2), Z1+M4(3));
     hold on;
     
     % Front left rod
@@ -71,7 +74,7 @@ function visualize(xin, yin, zin)
     blrz = zeros(1, numel(brrx));
     blrz(:) = zin;
     
-    axis([0 50 0 50 0 30]);
+    axis([-10 10 -10 10 -10 100]);
     xlabel('X AXIS');
     ylabel('Y AXIS');
     zlabel('Z AXIS');

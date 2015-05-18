@@ -20,21 +20,21 @@ theta = 0;
 weight = [0; 0; -g*m];
 
 % Simulation analysis
-t_start = 0;        % Start time
-t_end = 5;         % End time
-dt = 0.001;         % Steps
+t_start = 0;                    % Start time of the simulation
+t_end = 5;                      % End time of the simulationh
+dt = 0.001;                     % Steps
 
 t_sim = t_start:dt:t_end;
 N = numel(t_sim);
 
 % Output values, recorded as the simulation runs
-x = zeros(3,1);     % mass position
-v = zeros(3,1);     % mass velocity
-a = zeros(3,1);     % mass acceleration
+x = zeros(3,1);                 % mass position
+v = zeros(3,1);                 % mass velocity
+a = zeros(3,1);                 % mass acceleration
 
-x_out = zeros(3,N);     % mass position
-v_out = zeros(3,N);     % mass velocity
-a_out = zeros(3,N);     % mass acceleration
+x_out = zeros(3,N);             % mass position
+v_out = zeros(3,N);             % mass velocity
+a_out = zeros(3,N);             % mass acceleration
 
 omega = zeros(4, N);
 
@@ -43,9 +43,6 @@ index = 1;
 for t = t_sim
     omega(:, index) = in();
 
-    % dinei diaforetika omega alla kati ginetai mesa sto acceleration kati
-    % den exw thesei swsta kai den katlavainei pws ston x kai y yparxei
-    % kinhsh. des to baby :)
     a = acceleration(phi, psi, theta, k, m, weight, omega(index));
     v = v + dt * a;
     x = x + dt * v;
@@ -70,21 +67,13 @@ end
 % grid;xlabel('Time in [s]');ylabel('Pos. in [m]');
 
 % 3D simulation (position)
-% figure;
-% [X,Y,Z] = sphere(20);
-% xlabel('x axis');
-% ylabel('y axis');
-% zlabel('z axis');
-% grid on;
-% title('Simulating the position of a quadcopter');
 index = 1;
 figure;
-for t = t_sim
+for index = 1:40:length(t_sim)
     visualize(x_out(1, index), x_out(2, index), x_out(3, index));
+    printStatus();
     drawnow;
-    %mesh(X+x_out(1, index),Y+x_out(2, index),Z+x_out(3, index));
-    %axis([-15 15 -15 15 -50 50]);
-    pause(0.01);
-    
-    index = index + 40;
+    if index < length(t_sim)
+        clf;
+    end
 end
