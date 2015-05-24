@@ -12,8 +12,7 @@ k = 3e-6;                       % thrust coefficient
 b = 1e-7;                       % torque due to drag coefficient
 I = inertiaMatrix();
 kd = 0.25;                      % drag coefficient
-theta = 0;
-angles = zeros(3, 1);
+
 
 weight = [0; 0; -g*m];
 
@@ -37,15 +36,26 @@ a_out = zeros(3,N);             % mass acceleration
 angVel = zeros(4, N);
 
 omega = zeros(3, N);
+omegadot = zeros(3, N);
 
-% SIMULATION loop
+theta = zeros(3, N);
+thetadot = zeros(3, N);
+angles = zeros(3, N);
+
+% Run the simulation loop
 index = 1;
-for t = t_sim
-    % Calculate the position, valocity and acceleration
-    angVel(:, index) = in();
 
+for t = t_sim
+    % Get the four angular velocities as input to the system
+    angVel(:, index) = controller();
+
+    % calculate the accelerations of the mass
     [a, thrust] = acceleration(angles(1), angles(2), angles(3), k, m, weight, angVel(index));
+    
+    % calculate the velocities of the mass
     v = v + dt * a;
+    
+    % calculate the positions of the mass
     x = x + dt * v;
     
     a_out(:, index) = a;
@@ -54,28 +64,22 @@ for t = t_sim
     
     revI = diag([1/I(1,1), 1/I(2, 2), 1/I(3, 3)]);
     
-    % Calculate the angular velocity
-    omegadot = revI*(cross(-omega(:, index), I*omega(:, index)))+revI*thrust;
-    thetadot = omegatothetadot(omega, angles);
-    theta = theta + dt * thetadot;
+    omegadot(:, index) = angular_acceleration();
+    
+    omega(:, index) = omega(:, index) + dt * omegadot(:, index);
+    thetadot(:, index) = omegatothetadot(omega(:, index), angles(:, index));
+    theta(:, index) = theta(:, index) + dt * thetadot(:, index);
     index = index + 1;
 end
 
-% index = 1;
-% figure;
-% for index = 1:40:length(t_sim)
-%     thrust
-%     % Check if thrust is more equal or less than the weight and stop it.
-%     if weight(3) < thrust(3)
-%         visualize(x_out(1, index), x_out(2, index), x_out(3, index));
-%         drawnow;
-%         if index < length(t_sim)
-%             clf;
-%         end
-%     else
-%        
-%     end
-% end
+figure;
+for index = 1:40:length(t_sim)
+    visualize(x_out(1, index), x_out(2, index), x_out(3, index));
+    drawnow;
+    if index < length(t_sim)
+        clf;
+    end
+end
 
 
 
