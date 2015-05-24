@@ -10,12 +10,10 @@ m = 0.5;                        % mass in kg
 L = 0.25;                       % length of the rods
 k = 3e-6;                       % thrust coefficient
 b = 1e-7;                       % torque due to drag coefficient
-I = diag([5e-3, 5e-3, 10e-3]);  % moment of inertia
+I = inertiaMatrix();
 kd = 0.25;                      % drag coefficient
-
-phi = 0;
-psi = 0;
 theta = 0;
+angles = zeros(3, 1);
 
 weight = [0; 0; -g*m];
 
@@ -36,14 +34,17 @@ x_out = zeros(3,N);             % mass position
 v_out = zeros(3,N);             % mass velocity
 a_out = zeros(3,N);             % mass acceleration
 
-omega = zeros(4, N);
+angVel = zeros(4, N);
+
+omega = zeros(3, N);
 
 % SIMULATION loop
 index = 1;
 for t = t_sim
-    omega(:, index) = in();
+    % Calculate the position, valocity and acceleration
+    angVel(:, index) = in();
 
-    a = acceleration(phi, psi, theta, k, m, weight, omega(index));
+    [a, thrust] = acceleration(angles(1), angles(2), angles(3), k, m, weight, angVel(index));
     v = v + dt * a;
     x = x + dt * v;
     
@@ -51,29 +52,43 @@ for t = t_sim
     v_out(:, index) = v;
     x_out(:, index) = x;
     
+    revI = diag([1/I(1,1), 1/I(2, 2), 1/I(3, 3)]);
+    
+    % Calculate the angular velocity
+    omegadot = revI*(cross(-omega(:, index), I*omega(:, index)))+revI*thrust;
+    thetadot = omegatothetadot(omega, angles);
+    theta = theta + dt * thetadot;
     index = index + 1;
 end
 
-% 2D plots (position, velocity, acceleration)
+% index = 1;
 % figure;
-% subplot(3,1,1);
-% plot(t_sim, a_out(3, :), 'g', 'LineWidth', 5);
-% grid;ylabel('Acc. in [m/s^2]');
-% subplot(3,1,2);
-% plot(t_sim, v_out(3, :), 'b', 'LineWidth', 5);
-% grid;ylabel('Vel. in [m/s]');
-% subplot(3,1,3);
-% plot(t_sim, x_out(3, :), 'r', 'LineWidth', 5);
-% grid;xlabel('Time in [s]');ylabel('Pos. in [m]');
+% for index = 1:40:length(t_sim)
+%     thrust
+%     % Check if thrust is more equal or less than the weight and stop it.
+%     if weight(3) < thrust(3)
+%         visualize(x_out(1, index), x_out(2, index), x_out(3, index));
+%         drawnow;
+%         if index < length(t_sim)
+%             clf;
+%         end
+%     else
+%        
+%     end
+% end
 
-% 3D simulation (position)
-index = 1;
-figure;
-for index = 1:40:length(t_sim)
-    visualize(x_out(1, index), x_out(2, index), x_out(3, index));
-    printStatus();
-    drawnow;
-    if index < length(t_sim)
-        clf;
-    end
-end
+
+
+% % 3D graph for the position
+% index = 1;
+% figure;
+% for index = 1:40:length(t_sim)
+%     thrust
+%     weight
+%     visualize(x_out(1, index), x_out(2, index), x_out(3, index));
+%    
+%     drawnow;
+%     if index < length(t_sim)
+%         clf;
+%     end
+% end
