@@ -1,5 +1,10 @@
-function R = rotation(psi, theta, phi)
+function R = rotation(angles)
+    phi = angles(1);
+    psi = angles(2);
+    theta = angles(3);
+
     R = zeros(3);
+    
     R(:, 1) = [
         cos(phi) * cos(psi) - cos(theta) * sin(phi) * sin(psi)
         cos(theta) * cos(psi) * sin(phi) + cos(phi) * sin(psi)
