@@ -69,10 +69,10 @@ function visualize(xin, yin, zin)
     blrz = zeros(1, numel(brrx));
     blrz(:) = zin;
     
-    axis([-10 10 -10 10 -10 100]);
-    xlabel('X AXIS');
-    ylabel('Y AXIS');
-    zlabel('Z AXIS');
+    axis([-40 40 -40 40 -10 100]);
+    xlabel('');
+    ylabel('');
+    zlabel('Height');
     grid on;
     colormap(bone);
     title('Simulating the position of a quadcopter [RedR: Front View]');

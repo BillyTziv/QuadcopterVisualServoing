@@ -9,8 +9,8 @@ clc;
 
 % Enviromental and quad's constants 
 g = 9.81;                       % gravity acceleration
-m = 1.5;                        % mass in kg
-L = 0.85;                       % length of the rodsopen
+m = 0.5;                        % mass in kg
+L = 0.25;                       % length of the rodsopen
 ct = 3e-6;                      % thrust coefficient
 b = 1e-7;                       % torque due to drag coefficient
 kd = 0.25;                      % drag coefficient
