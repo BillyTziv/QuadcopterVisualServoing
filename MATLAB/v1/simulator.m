@@ -61,6 +61,9 @@ for t = times
     
         % calculate the positions of the mass
         x_out(:, index) = x_out(:, index) + dt * v_out(:, index);
+        if(x_out(:, index) <= 0)
+            x_out(:, index) = 0;
+        end
         flag = 1;
     else
         % calculate the velocities of the mass
@@ -68,7 +71,11 @@ for t = times
     
         % calculate the positions of the mass
         x_out(:, index) = x_out(:, index-1) + dt * v_out(:, index);
+        if(x_out(:, index) <= 0)
+            x_out(:, index) = 0;
+        end
     end
+    
     % Calculate omega dot
     torque(1, index) = 0.20*ct*(eng_omega(2)*eng_omega(2) - eng_omega(4)*eng_omega(4));
     torque(2, index) = 0.20*ct*(eng_omega(3)*eng_omega(3) - eng_omega(1)*eng_omega(1));
@@ -88,7 +95,8 @@ for t = times
     theta(:, index) = theta(:, index) + dt * thetadot(:, index);
     
     % Increase the index for the next loop
-    index = index + 1;          
+    index = index + 1;
+    
 end
 
 % Put all simulation variables into an output struct.
@@ -106,3 +114,8 @@ for index = 1:40:length(times)
     	clf;
     end
 end
+
+figure;
+
+plot(times, x_out(3, :), 'g', times, thrust, 'LineWidth', 3);
+grid on;
