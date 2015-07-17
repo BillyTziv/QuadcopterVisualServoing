@@ -3,8 +3,7 @@
 function h = visualize_test(data)
     % Create a figure with three parts. One part is for a 3D visualization,
     % and the other two are for running graphs of angular velocity and displacement.
-    figure; plots = [subplot(3, 2, 1:4), subplot(3, 2, 5), subplot(3, 2, 6)];
-    subplot(plots(1));
+    figure;
 
     % Create the quadcopter object. Returns a handle to
     % the quadcopter itself as well as the thrust-display cylinders.
@@ -27,7 +26,7 @@ function animate(data, model, thrusts, plots)
     for t = 1:40:length(data.times)
        
         % The first, main part, is for the 3D visualization.
-        subplot(plots(1));
+        %subplot(plots(1));
 
         % Compute translation to correct linear position coordinates.
         dx = data.x(:, t);
