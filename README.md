@@ -1,21 +1,8 @@
-# Jarvis - A hybrid quadcopter v1.0
-
-Hello there! I am Billy and in this project I am gonna try create a quadcopter from scatch. Below you can find some basic info about this repository and I hope they are usefull.
+# SkyBot
+SkyBot is a multicopter developed and build for aerial photographs and different kind automations such as transfering low weight payload to far distances or following a moving target. SkyBot will be able to carry up to 3000 grams of payload and fly for more than 15km.
 
 # Overview
-Jarvis project is about controlling a quadcopter using Arduino board and R-PI. It provides autonomours functionallity on a DIY quadcopter.
-
-This project has been started as my graduation paper at University of Ioannina, Department of Computer Science and Engineering. So hopefully at the end of 2015 it should be completed. Be patient and follow up.
+SkyBot project is using a modified ARPM v2.8 (ardupilot) flight controller developed by the owner of this repository. Source code will be free with no commercial purposes. SkyBot is remotelly controlled only for beta testing on new algorithms. After activating the craft an artificial neural intelligence will take place and make the flight.
 
 # Contact
-You can contact me at vtzivaras@gmail.com for any information. I ll be happy to have a conversation with you.
-
-# Files
-Here is a list of the files in this repository and what they are developed for
-
-- controlfrom4sonar.ino:    Code for arduino. It stabilizes a quad using four sonar under each motor (not tested).
-- simulator.mt:             Simulator code for MATLAB. It simulates the kinematics of a simple quadcopter. 
-- ireadFromTX.ino
-
-I hope you enjoy this project ^_^
-
+In case you want to contact me please send an email at vtzivaras@gmail.com and I will respeond ASAP. I ll be happy to have a conversation with you.
