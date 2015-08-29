@@ -1,4 +1,4 @@
-# SkyBot
+# Drone
 SkyBot is a multicopter developed and build for aerial photographs and different kind automations such as transfering low weight payload to far distances or following a moving target. SkyBot will be able to carry up to 3000 grams of payload and fly for more than 15km.
 
 # Overview
