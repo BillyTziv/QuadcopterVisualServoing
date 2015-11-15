@@ -16,17 +16,22 @@ d = 0.25;                       % length of the rods (cm)
 
 ct = 3e-6;                      % thrust coefficient N
 cq = 1e-7;                      % torque due to drag coefficient N
-k = 0.2;                        % Total force factor
 
-ktx = 1.65;                     % X axis torque factor
-kty = 0.05;                     % Y axis torque factor
-ktz = 1.8;                      % Z axis toruqe factor
-kd = 0.2;
-kthetax = 0.8;                          
-ktzd = 1.8;
-kvx = 1;                      % Velocity constant in X axis
-kvy = 1;                        % Velocity constant in Y axis
-kvz = 1;                        % Velocity constant in X axis
+kfx = 0.2;                      % Desired force position constant
+kfv = 0.2;                      % Desired force velocity constant
+
+kvx = 1;                        % Desired velocity constant in X axis
+kvy = 1;                        % Desired velocity constant in X axis
+kthetax = 0.8;                  % Desired angle constant in X axis
+kthetay = 0.8;                  % Desired angle constant in X axis
+
+kttx = 1.65;                    % Torque theta constant on X axis
+ktty = 0.05;                    % Torque theta constant on Y axis
+kttz = 1.8;                     % Torque theta constant on Z axis
+
+ktx = 1.8;                      % X axis thetadot factor
+kty = 1.8;                      % Y axis thetadot factor
+ktz = 1.8;                      % Z axis thetadot factor
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initializations
@@ -35,7 +40,7 @@ I = diag([5e-3, 5e-3, 10e-3]);  % Inertia Matrix
 
 % Simulation start and end time 
 startTime = 0;                  % Start time of the simulation (s)
-endTime = 20;                   % End time of the simulationh (s)
+endTime = 30;                   % End time of the simulationh (s)
 dt = 0.005;                     % Steps
 
 times = startTime:dt:endTime;   % Vector with all the times
@@ -80,24 +85,24 @@ v = [0 0 0]';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for index = 1:1:N
     % Desired force controller
-    F_des(index) = (m*g)+k*(endPoint(3)-x(3))+kd*(0-v(3));% kw
+    F_des(index) = (m*g)+kfx*(endPoint(3)-x(3))+kfv*(0-v(3));
 
     % Torque controller
     vel_x_des(index) = kvx*(endPoint(1) - x(1));
     theta_x_des = (m/F_des(index))*kthetax*(vel_x_des(index)-v(1));
     
-    vel_y_des(index) = kvx*endPoint(2) - x(2);
-    theta_y_des = (m/F_des(index))*kthetax*(vel_y_des(index)-v(2));
+    vel_y_des(index) = kvy*endPoint(2) - x(2);
+    theta_y_des = (m/F_des(index))*kthetay*(vel_y_des(index)-v(2));
     
     if(index == 1)
-        torque(1, index) = ktx*(theta_x_des - 0)-ktx*0;
-        torque(2, index) = ktx*(theta_y_des - 0)-ktx*0;
+        torque(1, index) = kttx*(theta_x_des - 0)-ktx*0;
+        torque(2, index) = kttx*(theta_y_des - 0)-kty*0;
     else
-        torque(1, index) = ktx*(theta_x_des - theta(3, index-1)-ktx*thetadot(3, index));
-        torque(2, index) = ktx*(theta_y_des - theta(2, index-1))-ktx*thetadot(2, index);
+        torque(1, index) = ktty*(theta_x_des - theta(3, index-1)-ktx*thetadot(3, index));
+        torque(2, index) = ktty*(theta_y_des - theta(2, index-1))-kty*thetadot(2, index);
     end
     
-    torque(3, index) = ktz*(theta_z_des-theta(1))+ktzd*(0-thetadot(1));% kw
+    torque(3, index) = kttz*(theta_z_des-theta(1))+ktz*(0-thetadot(1));% kw
 
     % Calculate the thrust according to the above desired force and torque
     vector(:, index) = [F_des(index), torque(1, index), torque(2, index), torque(3, index)]';
