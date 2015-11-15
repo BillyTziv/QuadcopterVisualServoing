@@ -1,9 +1,10 @@
 % Visualize the quadcopter simulation as an animation of a 3D quadcopter.
 
 function visualize(data)
-    % Create a figure with three parts. One part is for a 3D visualization,
-    % and the other two are for running graphs of angular velocity and displacement.
-    plots = [subplot(4, 6, [1, 2]), subplot(4, 6, [7, 8]), subplot(4, 6, [21, 22, 23, 24]),subplot(4, 6, [19, 20]), subplot(4, 6, [3, 4, 5, 6, 9, 10, 11, 12, 15, 16, 17, 18]), subplot(4, 6, [13, 14]),];
+    grid_rows = 4;
+    grid_cols = 6;
+    plots = [subplot(grid_rows, grid_cols, [1, 2]), subplot(grid_rows, grid_cols, [7, 8]), subplot(grid_rows, grid_cols, [13, 14]), subplot(grid_rows, grid_cols, [19, 20]), subplot(grid_rows, grid_cols, [3, 4, 5, 6, 9, 10, 11, 12, 15, 16, 17, 18]), subplot(grid_rows, grid_cols, [21, 22, 23, 24]) ];
+             
     subplot(plots(5));
 
     % Create the quadcopter object. Returns a handle to
@@ -50,7 +51,7 @@ function animate(data, model, thrusts, plots)
         % Compute scaling for the thrust cylinders. The lengths should represent relative
         % strength of the thrust at each propeller, and this is just a heuristic that seems
         % to give a good visual indication of thrusts.
-        scales = exp(data.input(:, t) / min(abs(data.input(:, t))) + 5) - exp(6) +  1.5;
+        scales = exp(data.eng_RPM(:, t) / min(abs(data.eng_RPM(:, t))) + 5) - exp(6) +  1.5;
         for i = 1:4
       
             % Scale each cylinder. For negative scales, we need to flip the cylinder
@@ -64,7 +65,7 @@ function animate(data, model, thrusts, plots)
 
             % Scale the cylinder as appropriate, then move it to
             % be at the same place as the quadcopter propeller.
-            set(thrusts(i), 'Matrix', move * rotate * scalez);
+%             set(thrusts(i), 'Matrix', move * rotate * scalez);
         end
      
         % Update the drawing.      
@@ -80,79 +81,118 @@ function animate(data, model, thrusts, plots)
         ylabel('Y axis');
         drawnow;
         
-        % Draw an X at the ground...
-        %         v1 = [xmin:xmax];
-        %         v2 = [ymin:ymax];
-        %         v3 = fliplr(v1);
-        %         v4 = [ymin:ymax];
-        %         plot(v1, v2, 'b', v3, v4, 'b', 'LineWidth', 1);
-        %         
-        v1 = [data.x(1, t):data.x(1, t)+10];
-        v2 = [data.x(2, t):data.x(2, t)+10];
-       
-        plot(v1, v2, 'r', 'LineWidth', 2);
-         
-        max_x_value = max(data.x(1, :));
-        max_y_value = max(data.x(2, :));
-        max_z_value = max(data.x(2, :));
+        % Calculate max values for the following plots
         max_time = max(data.times);
         
-        % Quadcopter X axis position
+        max_x_pos = max(data.x(1, :));
+        max_y_pos = max(data.x(2, :));
+        max_z_pos = max(data.x(3, :));     
+        max_position = max(max_x_pos, max_y_pos);
+        max_position = max(max_position, max_z_pos);
+        
+        max_x_vel = max(data.v(1, :));
+        max_y_vel = max(data.v(2, :));
+        max_z_vel = max(data.v(3, :));     
+        max_velocity = max(max_x_vel, max_y_vel);
+        max_velocity = max(max_velocity, max_z_vel);
+        
+        max_x_ace = max(data.a(1, :));
+        max_y_ace = max(data.a(2, :));
+        max_z_ace = max(data.a(3, :));     
+        max_acceleration = max(max_x_ace, max_y_ace);
+        max_acceleration = max(max_acceleration, max_z_ace);
+        
+        % Calculate min values for the following plots
+        min_x_pos = min(data.x(1, :));
+        min_y_pos = min(data.x(2, :));
+        min_z_pos = min(data.x(3, :));     
+        min_position = min(min_x_pos, min_y_pos);
+        min_position = min(min_position, min_z_pos);
+        
+        min_x_vel = min(data.v(1, :));
+        min_y_vel = min(data.v(2, :));
+        min_z_vel = min(data.v(3, :));     
+        min_velocity = min(min_x_vel, min_y_vel);
+        min_velocity = min(min_velocity, min_z_vel);
+        
+        min_x_ace = min(data.a(1, :));
+        min_y_ace = min(data.a(2, :));
+        min_z_ace = min(data.a(3, :));     
+        min_acceleration = min(min_x_ace, min_y_ace);
+        min_acceleration = min(min_acceleration, min_z_ace);
+        
+        % Calculate max torque for the following plots
+        max_x_torque = max(data.torque(1, :));
+        max_y_torque = max(data.torque(2, :));
+        max_z_torque = max(data.torque(3, :));      
+        max_torque = max(max_x_torque, max_y_torque);
+        max_torque = max(max_torque, max_z_torque);
+        
+        % Calculate min torque for the following plots
+        min_x_torque = min(data.torque(1, :));
+        min_y_torque = min(data.torque(2, :));
+        min_z_torque = min(data.torque(3, :));      
+        min_torque = min(min_x_torque, min_y_torque);
+        min_torque = min(min_torque, min_z_torque);
+        
+        % Calculate max engine RPM
+        max_eng1_RPM = max(data.eng_RPM(1, :));
+        max_eng2_RPM = max(data.eng_RPM(2, :));
+        max_eng3_RPM = max(data.eng_RPM(3, :));
+        max_eng4_RPM = max(data.eng_RPM(4, :));
+        max_front_eng_RPM = max(max_eng1_RPM, max_eng2_RPM);
+        max_rear_eng_RPM = max(max_eng3_RPM, max_eng4_RPM);
+        max_eng_RPM = max(max_front_eng_RPM, max_rear_eng_RPM);
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Plot the position of the vehicle
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         subplot(plots(1));
-        if(max_x_value ~= 0)
-            plot(data.times(1:t), data.x(1, 1:t), 'Color', 'b', 'LineWidth', 2);
-            axis([0 max_time 0 max_x_value]);
-            title('X axis');
-            grid on;
-        end
        
-        % Quadcopter Y axis position
-        subplot(plots(3));
-        if(max_y_value ~= 0)
-            plot(data.times(1:t), data.x(2, 1:t)+10, 'Color', 'b', 'LineWidth', 2);
-            axis([0 max_time 0 max_y_value]);
-            title('Y axis');
-            grid on;
-        end
-        
-        % Quadcopter Z axis position
-        subplot(plots(4));
-        if(max_y_value ~= 0)
-            plot(data.times(1:t), data.x(3, 1:t)+10, 'Color', 'b', 'LineWidth', 2);
-            axis([0 max_time 0 max_z_value]);
-            title('Z axis');
-            grid on;
-        end
-        
-        % Quadcopter theta angles (phi, psi, theta) graph
+        plot(data.times(1:t), data.x(:, 1:t), 'LineWidth', 2);
+        axis([0 max_time min_position max_position]);
+        title('Position');
+        grid on;
+     
+       
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Plot the velocity of the vehicle
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         subplot(plots(2));
-        plot(data.times, data.theta(1, :), 'Color', 'r', 'LineWidth', 2); hold on;
-        plot(data.times, data.theta(2, :), 'Color', 'g', 'LineWidth', 2); hold on;
-        plot(data.times, data.theta(3, :), 'Color', 'y', 'LineWidth', 2); hold off;
-        title('Angles r-x g-y y-z');
+        
+        plot(data.times(1:t), data.v(:, 1:t), 'LineWidth', 2);
+        axis([0 max_time min_velocity max_velocity]);
+        title('Velocity');
+        grid on;
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Plot the acceleration of the vehicle
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        subplot(plots(3));
+        
+        plot(data.times(1:t), data.a(:, 1:t), 'LineWidth', 2);
+        axis([0 max_time min_acceleration max_acceleration]);
+        title('Acceleration');
+        grid on;
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Plot the torques of the vehicle
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        subplot(plots(4));
+        
+        plot(data.times(1:t), data.torque(:, 1:t), 'LineWidth', 2);
+        axis([0 max_time min_torque max_torque]);
+        title('Torque');
         grid on;
 
-        % Ploting in X-Y a line, where the quadcopter goes
-        subplot(plots(4));
-        plot(data.x(1), data.x(2), 'Color', 'r', 'LineWidth', 2);
-        title('Position on X-Y ');
-        grid on;
-         
-        % Engine RPM bar graph
-        subplot(plots(3));
-        bar(data.input(1:4, t), 'y', 'LineWidth', 2);
-        ylabel('Engine RPM');
-        ylim([0 6000])
-        title('Thrust on X, Y, Z axis');
-        
-        % Error
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Plot in bar the engine RPMs of the vehicle
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         subplot(plots(6));
-        max_error = max(data.F_des(1, :));
-        max_time = max(data.times);
-        plot(data.times(1:t), data.F_des(1:t), 'Color', 'g', 'LineWidth', 2);
-        axis([0 max_time 0 max_error]);
-        title('Distance error from desired position');
-        grid on;
+        
+        bar(data.eng_RPM(1:4, t), 'g', 'LineWidth', 2);
+        ylim([0 max_eng_RPM])
+        title('Engine RPM');
     end
 end
 
@@ -195,17 +235,17 @@ function [h, thrusts] = quadcopter()
 
     % Draw thrust cylinders.
     [x y z] = cylinder(0.1, 7);
-    thrusts(1) = surf(x, y + 5, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-    thrusts(2) = surf(x + 5, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-    thrusts(3) = surf(x, y - 5, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-    thrusts(4) = surf(x - 5, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
+    thrusts(1) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
+    thrusts(2) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
+    thrusts(3) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
+    thrusts(4) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
 
     % Create handles for each of the thrust cylinders.
-    for i = 1:4
-        x = hgtransform;
-        set(thrusts(i), 'Parent', x);
-        thrusts(i) = x;
-    end
+%     for i = 1:4
+%         x = hgtransform;
+%         set(thrusts(i), 'Parent', x);
+%         thrusts(i) = x;
+%     end
 
     % Conjoin all quadcopter parts into one object.
     t = hgtransform;

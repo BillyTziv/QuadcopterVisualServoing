@@ -140,7 +140,7 @@ end
 
 figure('units','normalized','outerposition',[0 0 1 1], 'KeyPressFcn', @visualize);
 
-data = struct('x', position, 'theta', theta, 'vel', velocity,...
-    'times', times, 'dt', dt, 'input', engine_RPM, 'F_des', F_des);
+data = struct('x', position, 'v', velocity, 'a', acceleration, 'torque', torque, 'theta', theta,...
+    'times', times, 'dt', dt, 'eng_RPM', engine_RPM, 'F_des', F_des);
 
 visualize(data);
