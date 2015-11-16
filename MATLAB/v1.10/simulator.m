@@ -17,16 +17,16 @@ d = 0.25;                       % length of the rods (cm)
 ct = 3e-6;                      % thrust coefficient N
 cq = 1e-7;                      % torque due to drag coefficient N
 
-kfx = 0.2;                      % Desired force position constant
-kfv = 0.2;                      % Desired force velocity constant
+kfx = 1;                      % Desired force position constant
+kfv = 1;                      % Desired force velocity constant
 
-kvx = 1;                        % Desired velocity constant in X axis
-kvy = 1;                        % Desired velocity constant in X axis
-kthetax = 0.8;                  % Desired angle constant in X axis
-kthetay = 0.8;                  % Desired angle constant in X axis
+kvx = 0.6;                        % Desired velocity constant in X axis
+kvy = 0.6;                        % Desired velocity constant in X axis
+kthetax = 1;                  % Desired angle constant in X axis
+kthetay = 1;                  % Desired angle constant in X axis
 
 kttx = 1.65;                    % Torque theta constant on X axis
-ktty = 0.05;                    % Torque theta constant on Y axis
+ktty = 1.65;                    % Torque theta constant on Y axis
 kttz = 1.8;                     % Torque theta constant on Z axis
 
 ktx = 1.8;                      % X axis thetadot factor
@@ -48,7 +48,7 @@ N = numel(times);               % #of times that simulation will run
 
 % 4 DOF, X Y Z coordinate and direction
 startPoint = [0, 0, 0];         % start point
-endPoint = [2, 2, 10];          % end point
+endPoint = [4, 4, 10];          % end point
 
 theta_x_des = 0;                % x end direction
 theta_y_des = 0;                % y end direction
@@ -91,14 +91,14 @@ for index = 1:1:N
     vel_x_des(index) = kvx*(endPoint(1) - x(1));
     theta_x_des = (m/F_des(index))*kthetax*(vel_x_des(index)-v(1));
     
-    vel_y_des(index) = kvy*endPoint(2) - x(2);
+    vel_y_des(index) = kvy*(endPoint(2) - x(2));
     theta_y_des = (m/F_des(index))*kthetay*(vel_y_des(index)-v(2));
     
     if(index == 1)
         torque(1, index) = kttx*(theta_x_des - 0)-ktx*0;
-        torque(2, index) = kttx*(theta_y_des - 0)-kty*0;
+        torque(2, index) = ktty*(theta_y_des - 0)-kty*0;
     else
-        torque(1, index) = ktty*(theta_x_des - theta(3, index-1)-ktx*thetadot(3, index));
+        torque(1, index) = kttx*(theta_x_des - theta(3, index-1) - ktx*thetadot(3, index));
         torque(2, index) = ktty*(theta_y_des - theta(2, index-1))-kty*thetadot(2, index);
     end
     
@@ -127,8 +127,11 @@ for index = 1:1:N
         omegadot(:, index) = I\(cross(-omega(:, index-1),I*omega(:, index-1)) + torque(:, index));
     end
     
-    omega(:, index) = omega(:, index) + dt * omegadot(:, index);% kw
-    
+    if(index == 1)
+        omega(:, index) = omega(:, index) + dt * omegadot(:, index);% kw
+    else
+        omega(:, index) = omega(:, index-1) + dt * omegadot(:, index);% kw
+    end
     psi = theta(1);
     phi = theta(2);
    
@@ -139,8 +142,12 @@ for index = 1:1:N
     ];
  
     thetadot(:, index) = W\omega(:, index);
-    theta(:, index) = theta(:, index) + dt * thetadot(:, index);
-
+    
+    if(index == 1)
+        theta(:, index) = theta(:, index) + dt * thetadot(:, index);
+    else
+        theta(:, index) = theta(:, index-1) + dt * thetadot(:, index);
+    end
 end
 
 figure('units','normalized','outerposition',[0 0 1 1], 'KeyPressFcn', @visualize);
