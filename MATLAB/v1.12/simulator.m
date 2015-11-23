@@ -50,10 +50,9 @@ N = numel(times);               % #of times that simulation will run
 % 4 DOF, X Y Z coordinate and direction
 startPoint = [0, 0, 0];         % start point
 endPoint = [5, 0, 10];          % end point
+endVelocity = [0, 0, 0];          % end point
 
-theta_x_des = 0;                % x end direction
-theta_y_des = 0;                % y end direction
-theta_z_des = 45*(pi/180);      % z end direction
+theta_des = [0 0 45*(pi/180)];
 
 vel_y_des = 0;
 vel_x_des = 0;
@@ -61,7 +60,6 @@ vel_x_des = 0;
 % Output values, recorded as the simulation runs
 weight = [0;0;-m*g;];
 
-error = [];
 x_out = zeros(3,N);                 % mass position [X-Y-Z]
 v_out = zeros(3,N);                 % mass velocity [X-Y-Z]
 a_out = zeros(3,N);                 % mass acceleration [X-Y-Z]
@@ -73,8 +71,9 @@ thrust_out = zeros(3, N);           % vector with values only on z axis
 torque_out = zeros (3, N);          % Torque of yaw, pitch, roll
 engine_RPM_out = zeros(4, N);
 F_des_out = zeros(3, N);
+temp = zeros(1, N);
+theta_des_out = zeros(3, N);
 
-T = 0;
 vector = [0 0 0 0]';
 engine_RPM = [0 0 0 0]';
 torque = [0 0 0]';
@@ -87,42 +86,48 @@ omegadot = [0 0 0]';
 theta = [0 0 0]';
 thetadot = [0 0 0]';            
 
-
+T = 0;
+error = 0;
+error2 = inf;
+gnd_CS_des_vel = [0 0]';
+gnd_CS_vel = [0 0]';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation LOOP
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-error2 = inf;
-error_sum = 0;
+
 %while error2>1 && index<4000
 for index = 1:1:N
-    % Desired force controller
-    e = endPoint' - x;
-    edot = 0 - v;
-    error_sum = error_sum + dt*e(3);
-    T = m*g + kp*e(3) + ki*error_sum + kd*edot(3);
+    % Position error PID controller
+    pos_error = endPoint(3)' - x(3);        % Desired and current position
+    vel_error = endVelocity(3) - v(3);      % Desired and current velocity
+    T = m*g + kp*pos_error + kd*vel_error;
     
-    R2 = [cos(theta(1)), -sin(theta(1)), 0;sin(theta(1)), cos(theta(1)), 0;0, 0, 1;];
+    % Calculate the desired velocity
+    des_vel = kvx*(endPoint' - x);
     
-    % Torque controller
-    vel_x_des = kvx*(endPoint(1) - x(1));
-    vel_x_des_new = R2*vel_x_des;
-    vel_y_des_new = R2*vel_y_des;
-    v_new = R2*v;
-    theta_x_des = (m/T)*kthetax*(vel_x_des_new(1) - v_new(1));
-   
-    vel_y_des = kvy*(endPoint(2) - x(2));
-    theta_y_des = (m/T)*kthetay*(vel_y_des_new(2) - v(2));
+    % Change the coordinate system of the velocities
+    [gnd_CS_des_vel, gnd_CS_vel] = vel_CS_rotation(des_vel, v, theta);
+
+    % Calculate the desired theta angle
+    theta_des = (m/T)*kthetax*(gnd_CS_des_vel - gnd_CS_vel);
     
-  
-    torque(1) = kttx*(theta_x_des - theta(3)) - ktx*thetadot(3);
-    torque(2) = ktty*(theta_y_des - theta(2)) - kty*thetadot(2);
-    torque(3) = kttz*(theta_z_des - theta(1)) - ktz*thetadot(1);
+
+        theta_des(1) = 0.57;
+    if (theta(1) > 1 || theta(2)> 1 || theta(3)> 1 )
+        theta(1) = 1;
+        theta(2) = 1;
+        theta(3) = 1;
+    end
+    theta_des(3) = 45*(pi/180);
+    torque(1) = kttx*(theta_des(1) - theta(3)) - ktx*thetadot(3);
+    torque(2) = 0;%ktty*(theta_des(2) - theta(2)) - kty*thetadot(2);
+    torque(3) = kttz*(theta_des(3) - theta(1)) - ktz*thetadot(1);
 
     % Calculate the thrust according to the above desired force and torque
     vector = [T, torque(1), torque(2), torque(3)]';
     gamma1 = [ct, ct, ct, ct; 0, d*ct, 0, -d*ct; -d*ct, 0, d*ct, 0; -cq, cq, -cq, cq];
-    engine_RPM = gamma1\vector; % kw
+    engine_RPM = gamma1\vector;
     R = rotation(theta);
     thrust = [0; 0; ct * sum(abs(engine_RPM))];
 
@@ -149,6 +154,7 @@ for index = 1:1:N
     x_out(:, index) = x;
     v_out(:, index) = v;
     a_out(:, index) = a;
+    thrust_out(:, index) = thrust;
     omegadot_out(:, index) = omegadot;
     omega_out(:, index) = omega;
     thetadot_out(:, index) = thetadot;
@@ -157,6 +163,7 @@ for index = 1:1:N
     error2 = error(index);
     engine_RPM_out(:, index) = engine_RPM;
     F_des_out(:, index) = T;
+    theta_des_out(:, index) = theta_des;
 end
 
 %plot(F_des_out(end,:), 'Linewidth', 3)
