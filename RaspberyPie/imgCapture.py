@@ -1,16 +1,20 @@
-# RPI camera image capture using TX-RX signal
-
+import time
 import RPi.GPIO as GPIO
 
-SPIO.setmode(GPOI.BOARD)
-GPIO.setup(11,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11,GPIO.IN)
 
-GPIO.setup(7, GPIO.OUT)
+GPIO.setup(7,GPIO.OUT)
 GPIO.output(7,0)
 
 try:
 	while True:
-		GPIO.output(7, GPIO.input(11) )
+		if (GPIO.input(11) == 1):
+			print "ON";
+			time.sleep(50.0/1000.0);
+		else:
+			print "OFF";
+			time.sleep(50.0/1000.0);
 
-	except KeyboardInterrupt:
+except KeyboardInterrupt:
 		GPIO.cleanup()
