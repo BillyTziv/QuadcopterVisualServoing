@@ -9,7 +9,7 @@ function visualize(data)
 
     % Create the quadcopter object. Returns a handle to
     % the quadcopter itself as well as the thrust-display cylinders.
-    [t, thrusts] = quadcopter;
+    [t] = quadcopter;
 
     % Set axis scale and labels.
     max_height = max(data.x(3, :));
@@ -18,11 +18,11 @@ function visualize(data)
     grid on;
     
     % Animate the quadcopter with data from the simulation.
-    animate(data, t, thrusts, plots);
+    animate(data, t, plots);
 end
 
 % Animate a quadcopter in flight, using data from the simulation.
-function animate(data, model, thrusts, plots)
+function animate(data, model, plots)
     
     % Show frames from the animation. However, in the interest of speed,
     % skip some frames to make the animation more visually appealing.
@@ -217,7 +217,7 @@ end
 % and an array of handles to the thrust display cylinders. 
 % These will be transformed during the animation to display
 % relative thrust forces.
-function [h, thrusts] = quadcopter()
+function [h] = quadcopter()
     % Draw arms.
     h(1) = prism(-5, -0.25, -0.25, 10, 0.5, 0.5);
     h(2) = prism(-0.25, -5, -0.25, 0.5, 10, 0.5);
@@ -232,20 +232,6 @@ function [h, thrusts] = quadcopter()
     h(4) = surf(x + 5, y, z, 'EdgeColor', 'none', 'FaceColor', 'b');
     h(5) = surf(x, y - 5, z, 'EdgeColor', 'none', 'FaceColor', 'g');
     h(6) = surf(x, y + 5, z, 'EdgeColor', 'none', 'FaceColor', 'b');
-
-    % Draw thrust cylinders.
-    [x y z] = cylinder(0.1, 7);
-    thrusts(1) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-    thrusts(2) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-    thrusts(3) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-    thrusts(4) = surf(x, y, z, 'EdgeColor', 'none', 'FaceColor', 'k');
-
-    % Create handles for each of the thrust cylinders.
-%     for i = 1:4
-%         x = hgtransform;
-%         set(thrusts(i), 'Parent', x);
-%         thrusts(i) = x;
-%     end
 
     % Conjoin all quadcopter parts into one object.
     t = hgtransform;
