@@ -1,7 +1,16 @@
-% This project simulates a quadcopter in outdoor enviroment
+% =======================================
+% This project simulates a quadcopter. Specify the endpoint X, Y, Z
+% and the quadcopter will go there using and PID controller minimizing
+% the error of the currect and the desired destination.
 %
-% Developed by Tzivaras Vasilis
-% Contact me at vtzivaras@gmail.com
+% Computer Science and Engineering Department
+% University of Ioannina
+% Year 2017
+% The following code is developed by Tzivaras Vasilis
+% and is under GNU General Public License v2.0
+%
+% Feel free to contact me at vtzivaras@gmail.com for any bugs
+% =======================================
 
 % Clearing previous simulation variables
 clear all;
