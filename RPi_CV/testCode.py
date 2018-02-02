@@ -11,7 +11,7 @@ print "\nCircle tracking software stated...\n"
 
 # Hough Parameters
 dp=2			# The inverse ration of resolution
-min_dist=50 	# Minimum distance between the detecetd cirlces
+min_dist=150 		# Minimum distance between the detecetd cirlces
 par1=200
 par2=100
 
@@ -39,12 +39,13 @@ while True:
 	    
 	# Apply a HoughCircles, using HOUGH_GRADIENT method.
 	circles = cv2.HoughCircles(fr_gray, cv2.HOUGH_GRADIENT, dp, min_dist, par1, par2)
-	#print "Checking for circles"
+	
+	print "Checking for circles"
 	# Check if any circle have been detected
 	if circles is not None:
 		totalCircles = len(circles[0, :])
 		#print "Total: "+str(totalCircles)
-		#print circles
+		print circles
 		if(totalCircles == 4):
                         #print "Found 4 circles"
 			s_des[0] = circles[0, 0, 0]

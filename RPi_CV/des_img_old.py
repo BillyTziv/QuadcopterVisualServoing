@@ -5,8 +5,18 @@
 import cv2
 import numpy as np
 import sys
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
 
 print "\nCircle tracking software stated...\n"
+
+camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 32
+rawCapture = PiRGBArray(camera, size=(640, 480))
+time.sleep(0.1)
+
 
 # Hough Parameters
 dp=2			# The inverse ration of resolution
@@ -23,17 +33,19 @@ s_des = [0, 0, 0, 0, 0, 0, 0, 0]
 # Set the video feed
 cap = cv2.VideoCapture(videoDevice)
 
-while True:
-	# Receive frames from the camera, as long as it is open	
-	# Convert the RGB image taken from the camera to greyscale 
-	fr_rgb = cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2GRAY)
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+#while True:
+	# Capture a new frame from the webcam
+	cframe_rgb = frame.array
+	#cframe_rgb = cap.read()[1]
+	#cframe_rgb = cv2.imread('input.png')
+
+	# Convert the captured frame from RGB to GRAY scale
+	cframe_gray = cv2.cvtColor(cframe_rgb, cv2.COLOR_BGR2GRAY)
 	
-	# MedianBlur function, takes median of all pixels and replace each pixel in
-	# in the input image 'mbImg' according to the ksize argument '5'. 
-	fr_gray = cv2.medianBlur(fr_rgb, 5)
-	    
+ 
 	# Apply a HoughCircles, using HOUGH_GRADIENT method.
-	circles = cv2.HoughCircles(fr_gray, cv2.HOUGH_GRADIENT, dp, min_dist, par1, par2)
+	circles = cv2.HoughCircles(cframe_gray, cv2.HOUGH_GRADIENT, dp, min_dist, par1, par2)
 	print "Checking for circles"
 	# Check if any circle have been detected
 	if circles is not None:
