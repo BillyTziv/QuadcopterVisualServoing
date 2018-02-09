@@ -42,7 +42,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
 	# Convert the captured frame from RGB to GRAY scale
 	cframe_gray = cv2.cvtColor(cframe_rgb, cv2.COLOR_BGR2GRAY)
-	
+	cv2.imwrite('out.jpg', cframe_gray)
  
 	# Apply a HoughCircles, using HOUGH_GRADIENT method.
 	circles = cv2.HoughCircles(cframe_gray, cv2.HOUGH_GRADIENT, dp, min_dist, par1, par2)

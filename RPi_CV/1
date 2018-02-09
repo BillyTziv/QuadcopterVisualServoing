@@ -20,8 +20,8 @@ rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.1)
 
 # Vector containing the 2D image coordinates
-#s_des = [ 343, 120, 193, 122, 342, 258, 183, 267 ]
-s_des = [ 167 , 264 , 183 , 416 , 317 , 233 , 326 , 398 ]
+s_des = [ 343, 120, 193, 122, 342, 258, 183, 267 ]
+
 # Vector with the current X and Y coordinates in the image frame
 s = []
 
@@ -148,63 +148,6 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 omega = [[0, 0]]
 		v_cam =  np.transpose(np.dot(-np.diag([0.1, 0.1, 0.1, 0.1]), np.dot(np.linalg.pinv(L1), error))) - np.dot(np.linalg.pinv(L1), np.dot(L2, np.transpose(omega)))
 		print "Desired cam velocity :: X:", int(v_cam[0][0]), "Y: ", int(v_cam[0][1]), "Z: ", int(v_cam[0][2])
-
-		# Express the desired [vx vy vz] vector from the camera frame to the body frame.
-		R1 = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
-		v_c_des_B = np.dot(R1, [v_cam(1), v_cam(2), v_cam(3)])
-			
-		# Rotation matrix on Z axis about the new velocity coordinate system
-		R2 = [[cos(theta(1)), -sin(theta(1)), 0], [sin(theta(1)), cos(theta(1)), 0], [0, 0, 1]]
-			
-		# Desired camera (and quadcopter) velocity expressed in the velocity
-		# coordinate system
-		v_c_des_V = np.dot(np.dot(R2, R1), [v_cam(1), v_cam(2), v_cam(3)])
-
-
-		
-		# Express the current drone velocity from the inertial to the bodyframe
-		vel_quad_B = np.transpose(R) * vel
-		
-		# Express the current drone velocity from the inertial to the velocity
-		# coordinate system
-		vel_quad_V = np.dot(np.dot(R2, np.transpose(R)), vel);
-		
-		# PID velocity controller for the total quadcopter thrust.
-		posZ_des = posZ_des + dt * v_c_des_B(3);
-		posZ = posZ + dt * vel_quad_B(3);
-		
-		print "Apo edw kai katw einai ta pid controlls"
-		thrust_des = (m*g) + k_thrust_p*(v_c_des_B(3) - vel_quad_B(3)) - k_thrust_d*acc(3) + k_thrust_i*(posZ_des - posZ);
-		
-		# Calculate the desired theta (roll) angle via a P velocity controller in X axis.
-		theta_x_des = -0.6*(m/thrust_des)*(v_c_des_V(2) - vel_quad_V(2));
-		
-		# PID controller for the torque in X axis
-		thetax_des_i = thetax_des_i + dt*theta_x_des; # Integral of the desired theta angle in X axis.
-		thetax_i = thetax_i + dt * theta(2); # Integral of theta angle in X axis;
-		torq_des(1) = k_torqy_p * (theta_x_des - theta(2)) - k_torqy_d*thetadot(2) + k_torqy_i*(thetax_des_i - thetax_i);
-		
-		# Calculate the desired theta (pitch) angle via a P velocity controller in Y axis.
-		theta_y_des = 0.6*(m/thrust_des)*(v_c_des_V(1) - vel_quad_V(1));
-		
-		# PD controller for the torque in Y axis.
-		thetay_des_i = thetay_des_i + dt*theta_y_des; # Integral of the desired theta angle in Y axis.
-		thetay_i = thetay_i + dt * theta(1); # Integral of theta angle in Y axis;
-		torq_des(2) = k_torqx_p*(theta_y_des - theta(3)) - k_torqx_d*thetadot(3) + k_torqx_i*(thetay_des_i - thetay_i);
-		
-		# Convert the current angular velocities to theta dot
-		thetadot2 = omega2thetadot(np.transpose([omega(1), -omega(2), -v_c(4)]), theta)
-		
-		# P controller for the torque in Z axis.
-		torq_des(3) = 1.5*(thetadot2(1) - thetadot(1));
-
-
-		# Calculate the updated omega dot
-		omegadot= np.dot(inv(I), (np.cross(-omega, (np.dot(I,omega))) + [torq_des(1), torq_des(2), torq_des(3)]))
-		
-		# Calculate quadcopter omega from omega dot
-		omega = omega + dt * omegadot;
-		
 		thr=1300
 		rud=1464
 		if(v_cam[0][0] > 0):
@@ -244,7 +187,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	cv2.circle(cframe_rgb, (s_des[6], s_des[7]), 5, (100, 255, 0), -1)
 	
 	# Display the current and desired points in a window
-	cv2.imshow('frame', cframe_rgb)
+	#cv2.imshow('frame', cframe_rgb)
 	#print "\n"
 	
 	# Display the resulting frame
