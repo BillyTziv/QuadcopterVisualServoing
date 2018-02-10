@@ -19,5 +19,6 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	cframe_gray = cv2.cvtColor(cframe_rgb, cv2.COLOR_BGR2GRAY)
 
 	# Save the image captured
+	print "Saving image as: 'picam_image.jpg'"
 	cv2.imwrite('picam_image.jpg', cframe_rgb)
 	break

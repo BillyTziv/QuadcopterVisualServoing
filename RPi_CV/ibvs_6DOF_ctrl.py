@@ -19,15 +19,22 @@ camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.1)
 
+# True to get the first points in the loop
+SETDESIRED = True
+
 # Vector containing the 2D image coordinates
 #s_des = [ 343, 120, 193, 122, 342, 258, 183, 267 ]
-s_des = [255, 335, 314, 471, 387, 260, 441, 412]
+s_des = []
 # Vector with the current X and Y coordinates in the image frame
 s = []
 
 # Image points threshold
-pb_threshold = 50 	# Pixel Brightness thrshold is the max value of pixels we accept
-c_dist = 25		# Distance between coordinates to accept into the s vector
+pb_threshold = int(sys.argv[1]) 	# Pixel Brightness thrshold is the max value of pixels we accept
+c_dist = int(sys.argv[2])		# Distance between coordinates to accept into the s vector
+
+# Print details
+print "Pixel brightness threshold was set at: ", pb_threshold
+print "Max distance between neighbour pixels was set at: ", c_dist
 
 # Vector with the previous X and Y coordinates in the image frame
 # in case the camera does not detect the 4 target points. 
@@ -67,24 +74,40 @@ print "Waiting for arduino to respond..."
 data = ser.readline()
 print data
 
+# IBVS settings
+print ""
+
+# Start the loop
+sys.stdout.write("Tracking system will be activated in 3")
+sys.stdout.flush()
+time.sleep(1)
+sys.stdout.write(" 2")
+sys.stdout.flush()
+time.sleep(1)
+sys.stdout.write(" 1")
+sys.stdout.flush()
+time.sleep(1)
+
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-	# Capture a new frame from the webcam
-	cframe_rgb = frame.array
-	#cframe_rgb = cap.read()[1]
-	#cframe_rgb = cv2.imread('input.png')
+	cframe_rgb = frame.array		# Get the frame from the onboard pi camera
+	#cframe_rgb = cap.read()[1]		# Get the frame from a webcam
+	#cframe_rgb = cv2.imread('input.png')	# Get the frame from a file
 
 	# Convert the captured frame from RGB to GRAY scale
 	cframe_gray = cv2.cvtColor(cframe_rgb, cv2.COLOR_BGR2GRAY)
-	#cframe_gray[cframe_gray >60] = 255
+	cframe_gray[cframe_gray > 100] = 255
 
+	# Clera buffers for the next read
 	rawCapture.truncate(0)
-	# Apply a blur filter (optional)
-	# cframe_blur = cv2.medianBlur(cframe_gray, 5)
 	
-	# Create a list with all the black 2D coordinates found (a point must have a brighness
-	# lower than 10 to be black)
+	# Apply a blur filter (optional)
+	cframe_gray= cv2.medianBlur(cframe_gray, 15)
+	
+	# Create a list with all the black 2D coordinates found
 	blackList = np.argwhere(cframe_gray < pb_threshold)
-	counter = 1
+	#print "Blacklist contains total items: ", len(blackList)
+
+	# Check if the list with the black points is empty and go to the next loop
 	if len(blackList) == 0:
 		continue	
 	# Run through all of the coordinates and keep one record for each unique point found.
@@ -99,7 +122,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 			# not be inserted to the s list. Else the blackPoint is categorized as unique.
 			EXISTS=0
 			for sPoint in s:
-				if( ( abs(blackPoint[0]-sPoint[0]) < c_dist ) and ( abs(blackPoint[1]-sPoint[1]) < c_dist )):
+				if( ( abs(blackPoint[0]-sPoint[0]) < c_dist ) and ( abs(blackPoint[1]-sPoint[1]) < c_dist ) ):
 					EXISTS=1
 			if EXISTS==0:	
 				#print "New element match :: Inserting: ", blackPoint, "with brighness: ", cframe_gray[blackPoint[0]][blackPoint[1]]
@@ -110,18 +133,38 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
         if len(s) == 4:
 		# Prepare the string for the arduino (must start with '<' and end with '>')
-		s_raw = s[0][0], s[0][1], s[1][0], s[1][1], s[2][0], s[2][1], s[3][0], s[3][1]
-                
-		# Initialze the camera frame coordinate vectors
-                x1_cm = s[0][0]
-                y1_cm = s[0][1]
-                x2_cm = s[1][0]
-                y2_cm = s[1][1]
-                x3_cm = s[2][0]
-                y3_cm = s[2][1]
-                x4_cm = s[3][0]
-                y4_cm = s[3][1]
-                
+		s_raw = s[0][1], s[0][0], s[1][1], s[1][0], s[2][1], s[2][0], s[3][1], s[3][0]
+		if(SETDESIRED == True):
+			s_des = s_raw
+			SETDESIRED = False
+		#print s_raw
+		# Get the brighness of the current points
+		p1_value = cframe_gray[s[0][0]][s[0][1]+10]
+		p2_value = cframe_gray[s[1][0]][s[1][1]+10]
+		p3_value = cframe_gray[s[2][0]][s[2][1]+10]
+		p4_value = cframe_gray[s[3][0]][s[3][1]+10]
+		
+		# There are two options here. Either a black points is found first or a gray one. If the first one is black
+		# then we follow a specific order according to the normal way of image scanning.
+		if( p1_value < 10 ):
+                	x1_cm = s_raw[0]
+                	y1_cm = s_raw[1]
+	                x2_cm = s_raw[2]
+        	        y2_cm = s_raw[3]
+                	x4_cm = s_raw[4]
+                	y4_cm = s_raw[5]
+                	x3_cm = s_raw[6]
+                	y3_cm = s_raw[7]
+		else:
+                        x1_cm = s_raw[2]
+                        y1_cm = s_raw[3]
+                        x2_cm = s_raw[0]
+                        y2_cm = s_raw[1]
+                        x3_cm = s_raw[4]
+                        y3_cm = s_raw[5]
+                        x4_cm = s_raw[6]
+                        y4_cm = s_raw[7]		
+
 		# Calculate the L1 and L2 matrixes
                 L = [[-1/x1_Z, 0, x1_cm/x1_Z, y1_cm*x1_cm, -(1+x1_cm**2), y1_cm], [0, -1/x1_Z, y1_cm/x1_Z, 1+y1_cm**2, -x1_cm*y1_cm, -x1_cm], \
                      [-1/x2_Z, 0, x2_cm/x2_Z, y2_cm*x2_cm, -(1+x2_cm**2), y2_cm], [0, -1/x2_Z, y2_cm/x2_Z, 1+y2_cm**2, -x2_cm*y2_cm, -x2_cm], \
@@ -129,21 +172,23 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                      [-1/x4_Z, 0, x4_cm/x4_Z, y4_cm*x4_cm, -(1+x4_cm**2), y4_cm], [0, -1/x4_Z, y4_cm/x4_Z, 1+y4_cm**2, -x4_cm*y4_cm, -x4_cm]]
 
                 # Calculate the error between the s and s_des vectors
-                print "Desired s: ", s_des[0], s_des[1], s_des[2], s_des[3], s_des[4], s_des[5], s_des[6], s_des[7]
-                print "Current s: ", s_raw[0], s_raw[1], s_raw[2], s_raw[3], s_raw[4], s_raw[5], s_raw[6], s_raw[7]
+                #print "Desired s: ", s_des[0], s_des[1], s_des[2], s_des[3], s_des[4], s_des[5], s_des[6], s_des[7]
+                #print "Current s: ", s_raw[0], s_raw[1], s_raw[2], s_raw[3], s_raw[4], s_raw[5], s_raw[6], s_raw[7]
                 error = np.subtract(s_raw, s_des)
 
                 # Velocity controller IBVS
-		#print s_des
-		#print s_raw
-		print L
-		#print L2
-		print "Error :: ", error
+		print "DESIRED S VECTOR :: ", s_des
+		print "CURRENT S VECTOR :: ", s_raw
+		print "INTERATION MATRIX L :: ", L
+		
+		print "S ERROR :: ", error
 		lamda = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 1.5])
 		v_cam = np.dot(-lamda, np.dot(np.linalg.pinv(L), np.transpose(error)))# - np.dot(np.linalg.pinv(L1), np.dot(L2, np.transpose(omega)))
-		print int(v_cam[0]), int(v_cam[1]), int(v_cam[2]), int(v_cam[5])
+		print "CAM VELOCITY :: ", int(v_cam[0]), int(v_cam[1]), int(v_cam[2]), int(v_cam[5]) 
 		#print "Desired cam velocity :: X:", int(v_cam[0]), "Y: ", int(v_cam[0][1]), "Z: ", int(v_cam[0][2])
-
+		print "=========== FOR MATLAB ==========="
+		print "current s :", s_raw[1], s_raw[0], s_raw[3], s_raw[2],s_raw[5], s_raw[4],s_raw[7], s_raw[6]
+		print "desired s :", s_des[1], s_des[0], s_des[3], s_des[2],s_des[5], s_des[4],s_des[7], s_des[6]
 		# Express the desired [vx vy vz] vector from the camera frame to the body frame.
 		#R1 = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
 		#v_c_des_B = np.dot(R1, [v_cam(1), v_cam(2), v_cam(3)])
@@ -208,24 +253,29 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		#elif(v_cam[0][0] < 0):
 		#	ail=1650
                 #        print "Aileron RIGHT"
-                        
-                
-	
-	# Clear whatever need to be empty for the next loop
-	s = []
+	#else:
+	#	print "Warning: Total points found :: ", len(s)
+	#	print "Points found: ", s
 
-        cv2.circle(cframe_rgb, (15, 15), 15, (255, 0, 0), -1)
-        cv2.circle(cframe_rgb, (50, 50), 15, (0, 255, 0), -1)
-        cv2.circle(cframe_rgb, (250, 15), 15, (0, 0, 255), -1)
+		# Display with green circles the current points
+		#print "s vector: ", s, str(len(s))
+		#print "s des vec:", s_des, str(len(s_des)-1)
 	
-	# Display with green circles the desired points
-	cv2.circle(cframe_rgb, (s_des[0], s_des[1]), 5, (100, 255, 0), -1)
-	cv2.circle(cframe_rgb, (s_des[2], s_des[3]), 5, (100, 255, 0), -1)
-	cv2.circle(cframe_rgb, (s_des[4], s_des[5]), 5, (100, 255, 0), -1)
-	cv2.circle(cframe_rgb, (s_des[6], s_des[7]), 5, (100, 255, 0), -1)
+		for p in range(0, 7, 2):
+			cv2.circle(cframe_rgb, (s_raw[p+1], s_raw[p]), 15, (0, 255, 0), -1)
+			#print s[p][1]
 	
+		# Display with red circles the desired points
+		for l in range(0, 7, 2):
+			cv2.circle(cframe_rgb, (s_des[l+1], s_des[l]), 5, (0, 0, 255), -1)
+			#print s_des[l+1]
+	
+		# 20 for X and 80 for Y
+		cv2.circle(cframe_rgb, (20, 80), 15, (150, 77, 10), -1)
+		cv2.imwrite('output.jpg', cframe_rgb)
+
 	# Display the current and desired points in a window
-	#cv2.imshow('frame', cframe_rgb)
+	#cv2.imshow('frame', cframe_gray)
 	#print "\n"
 	
 	# Display the resulting frame
@@ -236,7 +286,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		print "Waiting for the arduino to respond..."
 		data = ser.readline()
 		print data
+
         	break
+	# Clear whatever need to be empty for the next loop
+	s = []
+
 # Destroy all windows and exit
 cv2.destroyAllWindows()
 
