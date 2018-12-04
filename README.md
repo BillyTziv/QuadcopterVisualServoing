@@ -19,13 +19,13 @@ We have added a varialbe that implement gausian white noise as the air disturban
 # Files & Folder Structure
 The files and folders structure will be listed below. If you find any error or bug please let me know.
 
-- ** distanceLanding ** contains an arduino sketch which was used to get the height from the ground in cm
-- ** Screenshots ** contain several screenshots used in this project (visual media always helps)
-- ** QuadLandingSimulation ** contains MATLAB source code that implement the simulation.
+- **distanceLanding** contains an arduino sketch which was used to get the height from the ground in cm
+- **Screenshots** contain several screenshots used in this project (visual media always helps)
+- **QuadLandingSimulation** contains MATLAB source code that implement the simulation.
 
 ## Simulation Source Code File Structure
-- ** main.m ** file contains the main loop and this is the first file that you should run.
-- ** visualize_FULL.m ** contains the visualization fo the MATLAB code. A 3D plot and many diagrams that allows you to get data feedback. 
+- **main.m** file contains the main loop and this is the first file that you should run.
+- **visualize_FULL.m** contains the visualization fo the MATLAB code. A 3D plot and many diagrams that allows you to get data feedback. 
 
 # Licence
 This project is licensed under the MIT License - see the LICENSE.md file for details
